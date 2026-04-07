@@ -1,0 +1,22 @@
+# Node modules
+node_modules/
+
+# Environment variables (IMPORTANT)
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# Build / temp
+dist/
+build/
+
+# Sequelize / DB configs
+config/config.json
+
+# Optional: uploads
+uploads/

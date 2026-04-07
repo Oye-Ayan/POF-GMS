@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="POF GMS v3.0 — Professional Gym Management System for POF Colony, powered by Node.js + MySQL8. Developed by Muhammad Ayan Khan.">
+  <meta name="author" content="Muhammad Ayan Khan">
+  <title>POF GMS — Gym Management System</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2306b6d4'/><text y='72' x='12' font-size='55' font-weight='900' font-family='sans-serif' fill='white'>POF</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles-v3.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     TOAST NOTIFICATION
+════════════════════════════════════════ -->
+<div class="toast" id="toast">
+  <span id="toast-icon" class="toast-icon">ℹ️</span>
+  <div class="toast-content">
+    <div id="toast-title"  class="toast-title"></div>
+    <div id="toast-msg"    class="toast-msg"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     APP LOADING OVERLAY
+════════════════════════════════════════ -->
+<div id="app-loader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">Loading Data...</div>
+</div>
+
+<!-- ════════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-bg">
+    <div class="auth-orb"></div>
+    <div class="auth-orb"></div>
+    <div class="auth-orb"></div>
+    <div class="auth-grid"></div>
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-badge">POF</div>
+      <div class="auth-logo-text">
+        <h1>GMS</h1>
+        <span>Gym Management System</span>
+      </div>
+    </div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')" id="tab-login">LOGIN</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')" id="tab-register">SIGN UP</div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="form-login" class="auth-form-container active">
+      <div class="auth-title">Welcome Back</div>
+      <div class="auth-subtitle">Sign in to your account</div>
+
+      <div class="form-group">
+        <label class="form-label" for="login-user">Username</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <input class="form-input" type="text" id="login-user" placeholder="Enter username" autocomplete="username">
+          <div class="input-focus-line"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="login-pass">Password</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <input class="form-input" type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password">
+          <div class="input-focus-line"></div>
+        </div>
+      </div>
+
+      <button class="btn-login" onclick="attemptLogin()">
+        <span class="btn-shine"></span>
+        LOGIN TO DASHBOARD
+      </button>
+
+      <p id="login-error">Invalid username or password. Please try again.</p>
+
+      <div class="auth-footer-links">
+        <a href="#" class="forgot-link" onclick="openForgotPasswordModal(); return false;">Forgot Password?</a>
+      </div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="form-register" class="auth-form-container">
+      <div class="auth-title">Create Account</div>
+      <div class="auth-subtitle">Join as Staff</div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-name">Full Name</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input class="form-input" type="text" id="reg-name" placeholder="John Doe">
+          <div class="input-focus-line"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-user">Username</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <input class="form-input" type="text" id="reg-user" placeholder="john123">
+          <div class="input-focus-line"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-email">Email Address</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input class="form-input" type="email" id="reg-email" placeholder="john@example.com">
+          <div class="input-focus-line"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-pass">Password</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input class="form-input" type="password" id="reg-pass" placeholder="Min 6 chars">
+          <div class="input-focus-line"></div>
+        </div>
+      </div>
+
+      <button class="btn-login" onclick="attemptRegister()">
+        <span class="btn-shine"></span>
+        CREATE ACCOUNT
+      </button>
+
+      <p id="reg-error" style="color:var(--danger); font-size:12px; margin-top:12px; display:none; text-align:center; padding:8px 12px; background:var(--danger-bg); border:1px solid var(--danger-border); border-radius:var(--r-sm);"></p>
+    </div>
+
+    <div class="auth-card-footer">
+      Developed by <strong>Muhammad Ayan Khan</strong> · Software Engineer<br>
+      POF GMS v3.0 · Full-Stack Edition · MySQL + Express
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     RESET PASSWORD SCREEN (from email link)
+════════════════════════════════════════ -->
+<div id="reset-screen">
+  <div class="auth-bg">
+    <div class="auth-orb"></div>
+    <div class="auth-orb"></div>
+    <div class="auth-orb"></div>
+    <div class="auth-grid"></div>
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-badge">POF</div>
+      <div class="auth-logo-text">
+        <h1>GMS</h1>
+        <span>Password Reset</span>
+      </div>
+    </div>
+
+    <div class="auth-title">Set New Password</div>
+    <div class="auth-subtitle">Create a Strong Password</div>
+
+    <input type="hidden" id="reset-token-input">
+
+    <div class="form-group">
+      <label class="form-label" for="rp-new-pass">New Password</label>
+      <div class="input-wrapper">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <input class="form-input" type="password" id="rp-new-pass" placeholder="Minimum 6 characters" oninput="checkResetPwStrength(this.value)">
+        <div class="input-focus-line"></div>
+      </div>
+      <div class="pw-strength-wrap">
+        <div class="pw-strength-track"><div class="pw-strength-fill" id="rp-str-bar"></div></div>
+        <div class="pw-strength-label" id="rp-str-label"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="rp-confirm-pass">Confirm Password</label>
+      <div class="input-wrapper">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <input class="form-input" type="password" id="rp-confirm-pass" placeholder="Re-enter your password">
+        <div class="input-focus-line"></div>
+      </div>
+    </div>
+
+    <p id="rp-error" style="color:var(--danger); font-size:12px; margin-bottom:12px; display:none; text-align:center; padding:8px 12px; background:var(--danger-bg); border:1px solid var(--danger-border); border-radius:var(--r-sm);"></p>
+
+    <button class="btn-login" id="rp-submit-btn" onclick="submitNewPassword()">
+      SET NEW PASSWORD
+    </button>
+
+    <div class="auth-footer-links" style="margin-top:16px">
+      <a href="/" class="forgot-link">← Back to Login</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     FORGOT PASSWORD MODAL
+════════════════════════════════════════ -->
+<div class="modal-bg" id="forgot-modal">
+  <div class="modal" style="width:460px;">
+    <div class="modal-header">
+      <h3>🔐 FORGOT PASSWORD</h3>
+      <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Step 1: Enter Email -->
+      <div id="fp-step1">
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px; line-height:1.7;">
+          Enter the email address associated with your manager account. We'll send you a secure link to reset your password.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="fp-email">Email Address</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <input class="form-input" type="email" id="fp-email" placeholder="your_email@gmail.com" autocomplete="email">
+            <div class="input-focus-line"></div>
+          </div>
+        </div>
+        <p id="fp-error" style="color:var(--danger); font-size:12px; margin-bottom:12px; display:none; padding:8px 12px; background:var(--danger-bg); border:1px solid var(--danger-border); border-radius:var(--r-sm);"></p>
+        <button class="btn-login" id="fp-send-btn" onclick="sendResetEmail()">
+          SEND RESET LINK
+        </button>
+      </div>
+
+      <!-- Step 2: Email Sent Confirmation -->
+      <div id="fp-step2" style="display:none; text-align:center; padding:20px 0;">
+        <div class="fp-success-icon">📧</div>
+        <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; margin-bottom:10px;">Check Your Inbox</h3>
+        <p style="font-size:13px; color:var(--text-secondary); line-height:1.7; margin-bottom:12px;">
+          We've sent a password reset link to:
+        </p>
+        <div class="fp-email-highlight" id="fp-sent-email"></div>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:16px; line-height:1.6;">
+          The link will expire in <strong style="color:var(--gold);">30 minutes</strong>.<br>
+          If you don't see the email, check your spam folder.
+        </p>
+        <button class="btn btn-outline" style="margin-top:20px;" onclick="closeForgotPasswordModal()">CLOSE</button>
+      </div>
+
+      <!-- Step 3: Success Message (after reset) -->
+      <div id="fp-step3" style="display:none; text-align:center; padding:20px 0;">
+        <div class="fp-success-icon">✅</div>
+        <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; margin-bottom:10px;">Password Changed!</h3>
+        <p style="font-size:13px; color:var(--text-secondary); line-height:1.7;">
+          Your password has been successfully reset. You can now login with your new credentials.
+        </p>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="closeForgotPasswordModal()">GO TO LOGIN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     MAIN APPLICATION
+════════════════════════════════════════ -->
+<div id="app-container" style="display:none">
+
+  <!-- ── TOP BAR ── -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="hamburger-btn" id="hamburger-btn" onclick="toggleDrawer()" title="Menu" aria-label="Open navigation">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <a href="#" class="logo" onclick="return false;">
+        <div class="logo-badge">POF</div>
+        <div class="logo-text">
+          <h1>GMS</h1>
+          <span>Gym Management System</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Center Nav (desktop) -->
+    <nav class="topbar-center">
+      <div class="topbar-nav-item" onclick="showPage('dashboard')">Dashboard</div>
+      <div class="topbar-nav-item" onclick="showPage('members')">Members</div>
+      <div class="topbar-nav-item" onclick="showPage('shifts')">Shifts</div>
+      <div class="topbar-nav-item" onclick="showPage('reports')">Reports</div>
+      <div class="topbar-nav-item" onclick="showPage('about')">About</div>
+    </nav>
+
+    <div class="topbar-right">
+      <div class="topbar-date" id="topDate"></div>
+      <label class="theme-toggle" title="Toggle Light/Dark Mode">
+        <input type="checkbox" id="theme-toggle" onchange="toggleTheme()">
+        <div class="toggle-track"><div class="toggle-thumb">🌙</div></div>
+      </label>
+      <div class="notification-btn" onclick="markPendingFees()" title="Fee Alerts">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <div class="notif-dot" id="notif-dot"></div>
+      </div>
+      <div class="admin-badge" onclick="API.logout(); showAuthScreen();" title="Click to Logout">
+        <div class="admin-avatar">GM</div>
+        <span class="admin-name">LOGOUT</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── APP BODY ── -->
+  <div class="app-body">
+
+    <!-- ═══════════════ SIDEBAR ═══════════════ -->
+    <div class="sidebar">
+      <div class="drawer-close-btn" id="drawer-close-btn">
+        <span class="drawer-logo">POF GMS</span>
+        <button onclick="closeDrawer()" style="width:30px;height:30px;background:var(--bg-layer2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Close">✕</button>
+      </div>
+
+      <div class="sidebar-menu">
+        <div class="menu-section">Navigation</div>
+
+        <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)">
+          <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </div>
+        <div class="menu-item" data-page="members" onclick="showPage('members', this)">
+          <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Members
+          <span class="menu-badge" id="pending-badge" style="display:none">0</span>
+        </div>
+        <div class="menu-item" data-page="shifts" onclick="showPage('shifts', this)">
+          <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Shift Schedule
+        </div>
+        <div class="menu-item" data-page="reports" onclick="showPage('reports', this)">
+          <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6"  y1="20" x2="6"  y2="14"/></svg>
+          Reports
+        </div>
+        <div class="menu-item" data-page="about" onclick="showPage('about', this)">
+          <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8"  x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          About
+        </div>
+
+        <div class="menu-section">Quick Actions</div>
+        <div class="menu-item" onclick="openAddModal()">
+          <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8"  y1="12" x2="16" y2="12"/></svg>
+          Add Member
+        </div>
+        <div class="menu-item" onclick="markPendingFees()">
+          <svg class="menu-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Fee Alerts
+        </div>
+      </div>
+
+      <!-- Sidebar Stats -->
+      <div class="sidebar-footer">
+        <div class="sidebar-stat-card">
+          <div class="stat-mini-top"><span class="stat-mini-label">Total Members</span><span class="stat-mini-value val-total" id="sb-total">0</span></div>
+          <div class="stat-mini-bar"><div class="stat-mini-fill" style="width:100%; background:var(--brand)"></div></div>
+        </div>
+        <div class="sidebar-stat-card">
+          <div class="stat-mini-top"><span class="stat-mini-label">Fees Paid</span><span class="stat-mini-value val-paid" id="sb-paid">0</span></div>
+          <div class="stat-mini-bar"><div class="stat-mini-fill" id="sb-paid-bar" style="width:0%; background:var(--success)"></div></div>
+        </div>
+        <div class="sidebar-stat-card" style="margin-bottom:0">
+          <div class="stat-mini-top"><span class="stat-mini-label">Pending</span><span class="stat-mini-value val-pending" id="sb-pending">0</span></div>
+          <div class="stat-mini-bar"><div class="stat-mini-fill" id="sb-pending-bar" style="width:0%; background:var(--danger)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+    <div class="main">
+
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="dash-header">
+          <div class="dash-header-left">
+            <h2>DASHBOARD OVERVIEW</h2>
+            <p>Welcome back, Manager. Here is today's gym snapshot.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openAddModal()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            ADD MEMBER
+          </button>
+        </div>
+        <div class="dash-content">
+          <div class="kpi-grid">
+            <div class="kpi-card c1"><div class="kpi-card-icon">👥</div><div class="kpi-label">Total Members</div><div class="kpi-value" id="kpi-total" style="color:var(--brand)">0</div><div class="kpi-sub">All categories combined</div></div>
+            <div class="kpi-card c2"><div class="kpi-card-icon">✅</div><div class="kpi-label">Fees Paid</div><div class="kpi-value" id="kpi-paid" style="color:var(--success)">0</div><div class="kpi-sub">Current month</div></div>
+            <div class="kpi-card c3"><div class="kpi-card-icon">⏳</div><div class="kpi-label">Fees Pending</div><div class="kpi-value" id="kpi-pending" style="color:var(--danger)">0</div><div class="kpi-sub">Needs attention</div></div>
+            <div class="kpi-card c4"><div class="kpi-card-icon">⏰</div><div class="kpi-label">Active Shifts</div><div class="kpi-value" id="kpi-shifts" style="color:var(--gold)">3</div><div class="kpi-sub">Morning / Evening / Night</div></div>
+          </div>
+          <div class="dash-grid">
+            <div class="dash-panel">
+              <div class="dash-panel-header">Recent Members<button class="btn btn-outline btn-sm" onclick="showPage('members', document.querySelector('[data-page=members]'))">View All →</button></div>
+              <div class="recent-list" id="dash-recent"></div>
+            </div>
+            <div class="dash-panel">
+              <div class="dash-panel-header">Shift Schedule<button class="btn btn-outline btn-sm" onclick="showPage('shifts', document.querySelector('[data-page=shifts]'))">Edit →</button></div>
+              <div class="shift-grid" id="dash-shifts"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEMBERS PAGE -->
+      <div class="page" id="page-members">
+        <div class="page-toolbar">
+          <span class="page-title">MEMBERS</span>
+          <div class="search-box">
+            <svg class="search-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search-input" placeholder="Search name, phone, CNIC…" oninput="renderTable()">
+          </div>
+          <select class="filter-select" id="cat-filter" onchange="renderTable()"><option value="">All Categories</option><option value="POF Employee">POF Employee</option><option value="Son of POF Employee">Son of POF Employee</option><option value="Civilian">Civilian</option></select>
+          <select class="filter-select" id="fee-filter" onchange="renderTable()"><option value="">All Status</option><option value="Paid">Paid</option><option value="Pending">Pending</option></select>
+          <button class="btn btn-primary" onclick="openAddModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>ADD MEMBER</button>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>SR #</th><th>Member</th><th>Category</th><th>Phone</th><th>Address</th><th>Shift</th><th>Status</th><th>Actions</th></tr></thead><tbody id="members-tbody"></tbody></table>
+          <div id="empty-members" class="empty-state" style="display:none"><div class="empty-state-icon">👤</div><p>No members found. Click <strong>ADD MEMBER</strong> to get started.</p></div>
+        </div>
+      </div>
+
+      <!-- SHIFTS PAGE -->
+      <div class="page" id="page-shifts">
+        <div class="page-toolbar"><span class="page-title">SHIFT SCHEDULE</span><span style="font-size:12px; color:var(--text-muted)">Manage gym shift timings by member category</span></div>
+        <div class="shifts-content"><div class="shift-cards" id="shift-cards"></div><div class="dash-panel"><div class="dash-panel-header">Members by Shift</div><div id="shift-member-list"></div></div></div>
+      </div>
+
+      <!-- REPORTS PAGE -->
+      <div class="page" id="page-reports">
+        <div class="page-toolbar"><span class="page-title">REPORTS & ANALYTICS</span><span style="font-size:12px; color:var(--text-muted)">Data insights and fee collection overview</span></div>
+        <div class="reports-content">
+          <div class="report-grid">
+            <div class="report-card"><div class="report-title">📊 Members by Category</div><div class="bar-chart" id="chart-cat"></div></div>
+            <div class="report-card"><div class="report-title">💰 Fee Collection Status</div><div class="bar-chart" id="chart-fee"></div></div>
+            <div class="report-card"><div class="report-title">⏰ Members by Shift</div><div class="bar-chart" id="chart-shift"></div></div>
+            <div class="report-card"><div class="report-title">⚠️ Pending Fee Members</div><div id="report-pending-list"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABOUT PAGE -->
+      <div class="page" id="page-about">
+        <div class="page-toolbar"><span class="page-title">ABOUT</span><span style="font-size:12px; color:var(--text-muted)">System information & developer details</span></div>
+        <div class="about-content">
+          <div class="about-hero">
+            <div class="about-product-badge"><div class="pof-letters">POF</div><div class="gms-letters">GMS</div></div>
+            <div class="about-hero-text">
+              <div class="version-tag"><span style="width:6px;height:6px;background:var(--success);border-radius:50%;"></span>Version 3.0 · Full-Stack</div>
+              <h2>POF Gym Management System</h2>
+              <p>A professional, full-featured gym management platform built for Pakistan Ordnance Factories. Now powered by Node.js, MySQL 8, and secure JWT authentication with real email-based password recovery.</p>
+            </div>
+          </div>
+          <div class="about-grid" style="margin-bottom:18px">
+            <div class="dev-profile">
+              <div class="dev-avatar-wrap"><div class="dev-avatar">AK</div><div class="dev-status-dot"></div></div>
+              <div class="dev-info">
+                <div class="dev-name">Muhammad Ayan Khan</div>
+                <div class="dev-title">💻 Software Engineer & UI/UX Developer</div>
+                <div class="dev-desc">Passionate software engineer specializing in professional web applications and management systems with a focus on clean architecture and elegant UX.</div>
+                <div class="dev-tags"><span class="dev-tag">Node.js</span><span class="dev-tag">Express</span><span class="dev-tag">MySQL 8</span><span class="dev-tag">JWT Auth</span><span class="dev-tag">JavaScript</span><span class="dev-tag">UI/UX Design</span><span class="dev-tag">Responsive Design</span></div>
+              </div>
+              <div class="dev-links">
+                <a class="dev-link" href="#" onclick="return false;"><span>🌐</span> Portfolio</a>
+                <a class="dev-link" href="#" onclick="return false;"><span>💻</span> GitHub</a>
+              </div>
+            </div>
+          </div>
+          <div class="about-grid">
+            <div class="about-card">
+              <div class="about-card-title"><div class="about-card-title-icon">⚙️</div>Technology Stack</div>
+              <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px; line-height:1.7">Full-stack architecture with secure backend and real database persistence.</p>
+              <div class="tech-stack">
+                <span class="tech-item">Node.js</span><span class="tech-item">Express</span><span class="tech-item">MySQL 8</span><span class="tech-item">Sequelize ORM</span><span class="tech-item">JWT Auth</span><span class="tech-item">bcrypt</span><span class="tech-item">Nodemailer</span><span class="tech-item">Helmet</span><span class="tech-item">Rate Limiting</span><span class="tech-item">HTML5 / CSS3</span><span class="tech-item">Vanilla JS</span>
+              </div>
+            </div>
+            <div class="about-card">
+              <div class="about-card-title"><div class="about-card-title-icon">📊</div>System Information</div>
+              <div class="about-version-info">
+                <div class="version-item"><div class="version-val">3.0</div><div class="version-label">Version</div></div>
+                <div class="version-item"><div class="version-val">2026</div><div class="version-label">Year Built</div></div>
+                <div class="version-item"><div class="version-val" style="font-size:14px">MySQL</div><div class="version-label">Database</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.main -->
+  </div><!-- /.app-body -->
+
+  <!-- MODALS -->
+  <!-- Add / Edit Member Modal -->
+  <div class="modal-bg" id="add-modal">
+    <div class="modal">
+      <div class="modal-header"><h3 id="modal-title">ADD NEW MEMBER</h3><button class="modal-close" onclick="closeModal('add-modal')" title="Close">✕</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group-modal"><label class="form-label-modal">Full Name *</label><input class="form-input-modal" id="f-name" placeholder="e.g. Col. Ahmed Raza" autocomplete="off"></div>
+          <div class="form-group-modal"><label class="form-label-modal">Phone Number</label><input class="form-input-modal" id="f-phone" placeholder="03XX-XXXXXXX" autocomplete="off"></div>
+          <div class="form-group-modal full"><label class="form-label-modal">Address</label><input class="form-input-modal" id="f-address" placeholder="Street, Area, City" autocomplete="off"></div>
+          <div class="form-group-modal"><label class="form-label-modal">Category *</label><select class="form-input-modal" id="f-category"><option value="POF Employee">POF Employee</option><option value="Son of POF Employee">Son of POF Employee</option><option value="Civilian">Civilian</option></select></div>
+          <div class="form-group-modal"><label class="form-label-modal">Assigned Shift</label><select class="form-input-modal" id="f-shift"><option value="Morning">🌅 Morning (6 AM – 10 AM)</option><option value="Evening">🌇 Evening (4 PM – 8 PM)</option><option value="Night">🌙 Night (8 PM – 10 PM)</option></select></div>
+          <div class="form-group-modal"><label class="form-label-modal">Monthly Fee (PKR)</label><input class="form-input-modal" id="f-fee" type="number" placeholder="e.g. 1500" min="0"></div>
+          <div class="form-group-modal"><label class="form-label-modal">Fee Status</label><select class="form-input-modal" id="f-status"><option value="Paid">✅ Paid</option><option value="Pending">⏳ Pending</option></select></div>
+          <div class="form-group-modal"><label class="form-label-modal">Join Date</label><input class="form-input-modal" id="f-joindate" type="date"></div>
+          <div class="form-group-modal full"><label class="form-label-modal">CNIC / Employee ID</label><input class="form-input-modal" id="f-cnic" placeholder="Optional — XXXXX-XXXXXXX-X" autocomplete="off"></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('add-modal')">Cancel</button><button class="btn btn-primary" id="save-btn" onclick="saveMember()">SAVE MEMBER</button></div>
+    </div>
+  </div>
+
+  <!-- Member Detail Modal -->
+  <div class="modal-bg" id="detail-modal">
+    <div class="modal modal-wide">
+      <div style="position:sticky; top:0; z-index:5; border-radius:var(--r-xl) var(--r-xl) 0 0; overflow:hidden;">
+        <div class="detail-hero">
+          <div style="position:relative;"><div class="detail-avatar" id="det-avatar"></div></div>
+          <div class="detail-info"><h3 id="det-name"></h3><div class="detail-meta" id="det-meta"></div></div>
+          <div style="margin-left:auto; display:flex; gap:8px; align-items:center; position:relative; z-index:1;">
+            <button class="btn btn-outline btn-sm" onclick="editFromDetail()">✏️ Edit</button>
+            <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="detail-body">
+        <div class="detail-section-title">MEMBER INFORMATION</div>
+        <div class="detail-info-grid" id="det-info-grid"></div>
+        <div class="detail-section-title">FEE PAYMENT HISTORY</div>
+        <div class="fee-summary" id="det-fee-summary"></div>
+        <div id="det-fee-history"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger  btn-sm" onclick="markFeeFromDetail('Pending')">⏳ Mark This Month Pending</button>
+        <button class="btn btn-success btn-sm" onclick="markFeeFromDetail('Paid')">✅ Mark This Month Paid</button>
+        <button class="btn btn-outline" onclick="closeModal('detail-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shift Edit Modal -->
+  <div class="modal-bg" id="shift-modal">
+    <div class="modal">
+      <div class="modal-header"><h3 id="shift-modal-title">EDIT SHIFT TIMINGS</h3><button class="modal-close" onclick="closeModal('shift-modal')">✕</button></div>
+      <div class="modal-body">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px; padding:10px 14px; background:var(--bg-layer2); border-radius:var(--r-md); border:1px solid var(--border);" id="shift-modal-cat"></p>
+        <div class="form-grid">
+          <div class="form-group-modal"><label class="form-label-modal">🌅 Morning Start</label><input class="form-input-modal" id="sh-morn-start" type="time"></div>
+          <div class="form-group-modal"><label class="form-label-modal">🌅 Morning End</label><input class="form-input-modal" id="sh-morn-end" type="time"></div>
+          <div class="form-group-modal"><label class="form-label-modal">🌇 Evening Start</label><input class="form-input-modal" id="sh-eve-start" type="time"></div>
+          <div class="form-group-modal"><label class="form-label-modal">🌇 Evening End</label><input class="form-input-modal" id="sh-eve-end" type="time"></div>
+          <div class="form-group-modal"><label class="form-label-modal">🌙 Night Start</label><input class="form-input-modal" id="sh-night-start" type="time"></div>
+          <div class="form-group-modal"><label class="form-label-modal">🌙 Night End</label><input class="form-input-modal" id="sh-night-end" type="time"></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('shift-modal')">Cancel</button><button class="btn btn-primary" onclick="saveShift()">SAVE TIMINGS</button></div>
+    </div>
+  </div>
+
+  <!-- Drawer Overlay -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <div class="mob-nav-item active" id="mob-dash" onclick="showPage('dashboard'); setMobActive('mob-dash')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="mob-nav-label">Dash</span></div>
+    <div class="mob-nav-item" id="mob-members" onclick="showPage('members'); setMobActive('mob-members')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="mob-nav-label">Members</span></div>
+    <div class="mob-nav-item" id="mob-add" onclick="openAddModal()"><div style="width:38px;height:38px;background:linear-gradient(135deg,var(--brand),var(--brand-dim));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px var(--brand-glow);margin-bottom:1px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><span class="mob-nav-label">Add</span></div>
+    <div class="mob-nav-item" id="mob-shifts" onclick="showPage('shifts'); setMobActive('mob-shifts')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="mob-nav-label">Shifts</span></div>
+    <div class="mob-nav-item" id="mob-reports" onclick="showPage('reports'); setMobActive('mob-reports')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6"  y1="20" x2="6"  y2="14"/></svg><span class="mob-nav-label">Reports</span></div>
+  </nav>
+
+</div><!-- /#app-container -->
+
+<!-- Password strength helper for reset screen -->
+<script>
+function checkResetPwStrength(val) {
+  const bar   = document.getElementById('rp-str-bar');
+  const label = document.getElementById('rp-str-label');
+  if (!bar) return;
+  let score = 0;
+  if (val.length >= 6)  score++;
+  if (val.length >= 10) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const levels = [
+    { w:'0%',   c:'transparent', t:'' },
+    { w:'20%',  c:'#ef4444',     t:'Weak' },
+    { w:'40%',  c:'#f97316',     t:'Fair' },
+    { w:'60%',  c:'#eab308',     t:'Good' },
+    { w:'80%',  c:'#22c55e',     t:'Strong' },
+    { w:'100%', c:'#10b981',     t:'Excellent' },
+  ];
+  const lvl = levels[Math.min(score, 5)];
+  bar.style.width      = lvl.w;
+  bar.style.background = lvl.c;
+  if (label) { label.textContent = lvl.t; label.style.color = lvl.c; }
+}
+</script>
+
+<!-- Scripts -->
+<script src="api.js"></script>
+<script src="app-v3.js"></script>
+<script src="premium-ux.js"></script>
+</body>
+</html>
