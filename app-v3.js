@@ -8,21 +8,17 @@
 
 'use strict';
 
-// ═══════════════════════════════════════════
 // CONSTANTS & CONFIG
-// ═══════════════════════════════════════════
-const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const MONTHS_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const NOW          = new Date();
-const CUR_YEAR     = NOW.getFullYear();
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const NOW = new Date();
+const CUR_YEAR = NOW.getFullYear();
 const currentMonth = now.getMonth() + 1;
-// ═══════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════
-let DB         = [];
-let SHIFTS     = {};
-let editingId  = null;
-let detailId   = null;
+let DB = [];
+let SHIFTS = {};
+let editingId = null;
+let detailId = null;
 let editShiftCat = null;
 let toastTimer = null;
 
@@ -32,13 +28,11 @@ const themeStorage = {
   saveTheme: (t) => localStorage.setItem('pof_gms_theme', t),
 };
 
-// ═══════════════════════════════════════════
 // AUTHENTICATION (API-Connected)
-// ═══════════════════════════════════════════
 function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.auth-form-container').forEach(f => f.classList.remove('active'));
-  
+
   if (tab === 'login') {
     document.getElementById('tab-login').classList.add('active');
     document.getElementById('form-login').classList.add('active');
@@ -49,12 +43,12 @@ function switchAuthTab(tab) {
 }
 
 async function attemptRegister() {
-  const name  = document.getElementById('reg-name').value.trim();
-  const user  = document.getElementById('reg-user').value.trim();
+  const name = document.getElementById('reg-name').value.trim();
+  const user = document.getElementById('reg-user').value.trim();
   const email = document.getElementById('reg-email').value.trim();
-  const pass  = document.getElementById('reg-pass').value;
-  const err   = document.getElementById('reg-error');
-  const btn   = document.querySelector('#form-register .btn-login');
+  const pass = document.getElementById('reg-pass').value;
+  const err = document.getElementById('reg-error');
+  const btn = document.querySelector('#form-register .btn-login');
 
   if (!name || !user || !email || !pass) {
     err.textContent = 'All fields are required.';
@@ -92,8 +86,8 @@ async function attemptRegister() {
 async function attemptLogin() {
   const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
-  const err  = document.getElementById('login-error');
-  const btn  = document.querySelector('#form-login .btn-login');
+  const err = document.getElementById('login-error');
+  const btn = document.querySelector('#form-login .btn-login');
 
   if (!user || !pass) {
     err.textContent = 'Please enter both username and password.';
@@ -136,9 +130,7 @@ function showAuthScreen() {
   document.getElementById('app-container').style.display = 'none';
 }
 
-// ═══════════════════════════════════════════
 // FORGOT PASSWORD (Real SMTP Email)
-// ═══════════════════════════════════════════
 function openForgotPasswordModal() {
   document.getElementById('forgot-modal').classList.add('open');
   // Reset to step 1
@@ -156,7 +148,7 @@ function closeForgotPasswordModal() {
 async function sendResetEmail() {
   const email = document.getElementById('fp-email').value.trim();
   const errEl = document.getElementById('fp-error');
-  const btn   = document.getElementById('fp-send-btn');
+  const btn = document.getElementById('fp-send-btn');
 
   if (!email) {
     errEl.textContent = 'Please enter your email address.';
@@ -197,11 +189,11 @@ function checkResetToken() {
 }
 
 async function submitNewPassword() {
-  const token   = document.getElementById('reset-token-input').value;
+  const token = document.getElementById('reset-token-input').value;
   const newPass = document.getElementById('rp-new-pass').value;
   const confirm = document.getElementById('rp-confirm-pass').value;
-  const errEl   = document.getElementById('rp-error');
-  const btn     = document.getElementById('rp-submit-btn');
+  const errEl = document.getElementById('rp-error');
+  const btn = document.getElementById('rp-submit-btn');
 
   if (newPass.length < 6) {
     errEl.textContent = 'Password must be at least 6 characters.';
@@ -234,9 +226,7 @@ async function submitNewPassword() {
   }
 }
 
-// ═══════════════════════════════════════════
 // THEME
-// ═══════════════════════════════════════════
 function initTheme() {
   const theme = themeStorage.getTheme();
   applyTheme(theme);
@@ -253,14 +243,12 @@ function applyTheme(theme) {
 
 function toggleTheme() {
   const current = themeStorage.getTheme();
-  const next    = current === 'dark' ? 'light' : 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
   applyTheme(next);
   showToast('Theme Changed', `Switched to ${next} mode`, 'info');
 }
 
-// ═══════════════════════════════════════════
 // DATA LOADING (From MySQL via API)
-// ═══════════════════════════════════════════
 async function loadMembers() {
   try {
     const data = await API.getMembers();
@@ -287,17 +275,15 @@ async function loadShifts() {
 }
 
 function defaultShifts() {
-  const base = { morning: ['06:00','10:00'], evening: ['16:00','20:00'], night: ['20:00','22:00'] };
+  const base = { morning: ['06:00', '10:00'], evening: ['16:00', '20:00'], night: ['20:00', '22:00'] };
   return {
-    'POF Employee':         { ...base },
-    'Son of POF Employee':  { ...base },
-    'Civilian':             { ...base },
+    'POF Employee': { ...base },
+    'Son of POF Employee': { ...base },
+    'Civilian': { ...base },
   };
 }
 
-// ═══════════════════════════════════════════
 // NAVIGATION
-// ═══════════════════════════════════════════
 function showPage(name, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + name);
@@ -313,26 +299,24 @@ function showPage(name, el) {
 
   const renderers = {
     dashboard: renderDashboard,
-    members:   renderTable,
-    shifts:    renderShifts,
-    reports:   () => { renderReports(); setTimeout(animateReportBars, 150); },
-    about:     () => {},
+    members: renderTable,
+    shifts: renderShifts,
+    reports: () => { renderReports(); setTimeout(animateReportBars, 150); },
+    about: () => { },
   };
   if (renderers[name]) renderers[name]();
 }
 
-// ═══════════════════════════════════════════
 // DASHBOARD
-// ═══════════════════════════════════════════
 function renderDashboard() {
-  const total   = DB.length;
-  const paid    = DB.filter(m => m.status === 'Paid').length;
+  const total = DB.length;
+  const paid = DB.filter(m => m.status === 'Paid').length;
   const pending = DB.filter(m => m.status === 'Pending').length;
 
-  animateCount('kpi-total',   total);
-  animateCount('kpi-paid',    paid);
+  animateCount('kpi-total', total);
+  animateCount('kpi-paid', paid);
   animateCount('kpi-pending', pending);
-  animateCount('kpi-shifts',  3);
+  animateCount('kpi-shifts', 3);
   updateSidebar();
 
   const recent = [...DB].reverse().slice(0, 7);
@@ -353,8 +337,8 @@ function renderDashboard() {
 
   const shiftCont = document.getElementById('dash-shifts');
   if (shiftCont) {
-    shiftCont.innerHTML = ['POF Employee','Son of POF Employee','Civilian'].map(cat => {
-      const sh    = SHIFTS[cat];
+    shiftCont.innerHTML = ['POF Employee', 'Son of POF Employee', 'Civilian'].map(cat => {
+      const sh = SHIFTS[cat];
       if (!sh) return '';
       const count = DB.filter(m => m.category === cat).length;
       return `<div class="shift-row">
@@ -373,9 +357,9 @@ function animateCount(id, target) {
   if (!el) return;
   const start = 0, duration = 700, startTime = performance.now();
   function update(now) {
-    const elapsed  = now - startTime;
+    const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    const eased    = 1 - Math.pow(1 - progress, 3);
+    const eased = 1 - Math.pow(1 - progress, 3);
     el.textContent = Math.round(start + (target - start) * eased);
     if (progress < 1) requestAnimationFrame(update);
     else el.textContent = target;
@@ -383,18 +367,16 @@ function animateCount(id, target) {
   requestAnimationFrame(update);
 }
 
-// ═══════════════════════════════════════════
 // MEMBERS TABLE
-// ═══════════════════════════════════════════
 function renderTable() {
-  const q  = (document.getElementById('search-input')?.value || '').toLowerCase();
-  const cf = document.getElementById('cat-filter')?.value    || '';
-  const ff = document.getElementById('fee-filter')?.value    || '';
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const cf = document.getElementById('cat-filter')?.value || '';
+  const ff = document.getElementById('fee-filter')?.value || '';
 
   let filtered = DB.filter(m => {
-    const mQ = !q  || m.name.toLowerCase().includes(q) || (m.phone||'').includes(q) || (m.cnic||'').includes(q);
+    const mQ = !q || m.name.toLowerCase().includes(q) || (m.phone || '').includes(q) || (m.cnic || '').includes(q);
     const mC = !cf || m.category === cf;
-    const mF = !ff || m.status   === ff;
+    const mF = !ff || m.status === ff;
     return mQ && mC && mF;
   });
 
@@ -419,8 +401,8 @@ function renderTable() {
         </div>
       </td>
       <td><span class="cat-badge ${catClass(m.category)}">${m.category}</span></td>
-      <td style="color:var(--text-muted); font-family:var(--font-mono); font-size:12px">${m.phone||'—'}</td>
-      <td style="color:var(--text-muted); max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${m.address||''}">${m.address||'—'}</td>
+      <td style="color:var(--text-muted); font-family:var(--font-mono); font-size:12px">${m.phone || '—'}</td>
+      <td style="color:var(--text-muted); max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${m.address || ''}">${m.address || '—'}</td>
       <td>
         <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); background:var(--bg-layer3); padding:3px 8px; border-radius:var(--r-sm); border:1px solid var(--border)">
           ${m.shift}
@@ -440,13 +422,11 @@ function renderTable() {
   updateMenuBadge();
 }
 
-// ═══════════════════════════════════════════
 // ADD / EDIT MEMBER (API-Connected)
-// ═══════════════════════════════════════════
 function openAddModal() {
   editingId = null;
-  document.getElementById('modal-title').textContent  = 'ADD NEW MEMBER';
-  document.getElementById('save-btn').textContent     = 'SAVE MEMBER';
+  document.getElementById('modal-title').textContent = 'ADD NEW MEMBER';
+  document.getElementById('save-btn').textContent = 'SAVE MEMBER';
   clearForm();
   document.getElementById('f-joindate').value = NOW.toISOString().split('T')[0];
   openModal('add-modal');
@@ -457,34 +437,34 @@ function openEditModal(id) {
   if (!m) return;
   editingId = id;
   document.getElementById('modal-title').textContent = 'EDIT MEMBER';
-  document.getElementById('save-btn').textContent    = 'UPDATE MEMBER';
-  document.getElementById('f-name').value     = m.name;
-  document.getElementById('f-phone').value    = m.phone;
-  document.getElementById('f-address').value  = m.address;
+  document.getElementById('save-btn').textContent = 'UPDATE MEMBER';
+  document.getElementById('f-name').value = m.name;
+  document.getElementById('f-phone').value = m.phone;
+  document.getElementById('f-address').value = m.address;
   document.getElementById('f-category').value = m.category;
-  document.getElementById('f-shift').value    = m.shift;
-  document.getElementById('f-fee').value      = m.fee;
-  document.getElementById('f-status').value   = m.status;
+  document.getElementById('f-shift').value = m.shift;
+  document.getElementById('f-fee').value = m.fee;
+  document.getElementById('f-status').value = m.status;
   document.getElementById('f-joindate').value = m.joindate;
-  document.getElementById('f-cnic').value     = m.cnic || '';
+  document.getElementById('f-cnic').value = m.cnic || '';
   openModal('add-modal');
 }
 
 async function saveMember() {
-  const get  = id => document.getElementById(id);
+  const get = id => document.getElementById(id);
   const name = get('f-name').value.trim();
   if (!name) { showToast('Validation Error', 'Please enter a member name', 'danger'); return; }
 
   const memberData = {
     name,
-    phone:    get('f-phone').value.trim(),
-    address:  get('f-address').value.trim(),
+    phone: get('f-phone').value.trim(),
+    address: get('f-address').value.trim(),
     category: get('f-category').value,
-    shift:    get('f-shift').value,
-    fee:      parseInt(get('f-fee').value) || 0,
-    status:   get('f-status').value,
+    shift: get('f-shift').value,
+    fee: parseInt(get('f-fee').value) || 0,
+    status: get('f-status').value,
     joindate: get('f-joindate').value,
-    cnic:     get('f-cnic').value.trim(),
+    cnic: get('f-cnic').value.trim(),
   };
 
   const btn = document.getElementById('save-btn');
@@ -532,21 +512,19 @@ async function deleteMember(id) {
   }
 }
 
-// ═══════════════════════════════════════════
 // MEMBER DETAIL MODAL
-// ═══════════════════════════════════════════
 function openDetail(id) {
   const m = DB.find(x => x.id === id);
   if (!m) return;
   detailId = id;
 
-  const avCls  = avClass(m.category);
-  const init   = initials(m.name);
+  const avCls = avClass(m.category);
+  const init = initials(m.name);
 
-  document.getElementById('det-avatar').className  = `detail-avatar ${avCls}`;
+  document.getElementById('det-avatar').className = `detail-avatar ${avCls}`;
   document.getElementById('det-avatar').textContent = init;
-  document.getElementById('det-name').textContent  = m.name;
-  document.getElementById('det-meta').innerHTML    = `
+  document.getElementById('det-name').textContent = m.name;
+  document.getElementById('det-meta').innerHTML = `
     <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Sr. #${m.srNo}</span>
     <span class="cat-badge ${catClass(m.category)}">${m.category}</span>
     <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${m.shift} Shift</span>
@@ -574,8 +552,8 @@ function openDetail(id) {
       <div class="detail-field-value text-gold">PKR ${(m.fee || 0).toLocaleString()}</div>
     </div>`;
 
-  const fh     = m.feeHistory || {};
-  const years  = Object.keys(fh).sort((a, b) => b - a);
+  const fh = m.feeHistory || {};
+  const years = Object.keys(fh).sort((a, b) => b - a);
   let totalPaid = 0, totalPending = 0;
   years.forEach(y => Object.values(fh[y]).forEach(v => v === 'Paid' ? totalPaid++ : totalPending++));
 
@@ -599,15 +577,15 @@ function openDetail(id) {
       <div class="fee-year-label">${y}</div>
       <div class="months-grid">
         ${MONTHS_SHORT.map((mn, i) => {
-          if (!months.hasOwnProperty(i)) {
-            return `<div class="month-box" style="opacity:0.15; cursor:default;"><div>—</div><div class="month-name">${mn}</div></div>`;
-          }
-          const paid = months[i] === 'Paid';
-          return `<div class="month-box ${paid ? 'month-paid' : 'month-pending'}" onclick="toggleMonthFee(${id},${y},${i})" title="${paid ? 'Paid <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' : 'Pending <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'} · Click to toggle">
+      if (!months.hasOwnProperty(i)) {
+        return `<div class="month-box" style="opacity:0.15; cursor:default;"><div>—</div><div class="month-name">${mn}</div></div>`;
+      }
+      const paid = months[i] === 'Paid';
+      return `<div class="month-box ${paid ? 'month-paid' : 'month-pending'}" onclick="toggleMonthFee(${id},${y},${i})" title="${paid ? 'Paid <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' : 'Pending <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'} · Click to toggle">
             <div>${paid ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}</div>
             <div class="month-name">${mn}</div>
           </div>`;
-        }).join('')}
+    }).join('')}
       </div>
     </div>`;
   }).join('');
@@ -655,18 +633,16 @@ function editFromDetail() {
   openEditModal(detailId);
 }
 
-// ═══════════════════════════════════════════
 // SHIFTS PAGE (API-Connected)
-// ═══════════════════════════════════════════
 function renderShifts() {
-  const cards  = document.getElementById('shift-cards');
-  const cats   = ['POF Employee','Son of POF Employee','Civilian'];
-  const scCls  = ['sc-pof','sc-son','sc-civ'];
-  const emojis = [[`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="22"/><line x1="15" y1="22" x2="15" y2="22"/><line x1="9" y1="6" x2="9" y2="6"/><line x1="15" y1="6" x2="15" y2="6"/><line x1="9" y1="10" x2="9" y2="10"/><line x1="15" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="9" y2="14"/><line x1="15" y1="14" x2="15" y2="14"/><line x1="9" y1="18" x2="9" y2="18"/><line x1="15" y1="18" x2="15" y2="18"/></svg>`,`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="10" width="6" height="12"/><rect x="8" y="2" width="8" height="20"/><rect x="16" y="14" width="6" height="8"/></svg>`]];
+  const cards = document.getElementById('shift-cards');
+  const cats = ['POF Employee', 'Son of POF Employee', 'Civilian'];
+  const scCls = ['sc-pof', 'sc-son', 'sc-civ'];
+  const emojis = [[`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="22"/><line x1="15" y1="22" x2="15" y2="22"/><line x1="9" y1="6" x2="9" y2="6"/><line x1="15" y1="6" x2="15" y2="6"/><line x1="9" y1="10" x2="9" y2="10"/><line x1="15" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="9" y2="14"/><line x1="15" y1="14" x2="15" y2="14"/><line x1="9" y1="18" x2="9" y2="18"/><line x1="15" y1="18" x2="15" y2="18"/></svg>`, `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="10" width="6" height="12"/><rect x="8" y="2" width="8" height="20"/><rect x="16" y="14" width="6" height="8"/></svg>`]];
 
   if (cards) {
     cards.innerHTML = cats.map((cat, i) => {
-      const sh    = SHIFTS[cat];
+      const sh = SHIFTS[cat];
       if (!sh) return '';
       const count = DB.filter(m => m.category === cat).length;
       return `<div class="shift-card ${scCls[i]}" style="animation: cardIn 0.4s ease ${i * 0.1}s both">
@@ -700,9 +676,9 @@ function renderShifts() {
 
   const listCont = document.getElementById('shift-member-list');
   if (listCont) {
-    listCont.innerHTML = ['Morning','Evening','Night'].map(shiftName => {
+    listCont.innerHTML = ['Morning', 'Evening', 'Night'].map(shiftName => {
       const members = DB.filter(m => m.shift === shiftName);
-      const icon    = shiftName === 'Morning' ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` : shiftName === 'Evening' ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+      const icon = shiftName === 'Morning' ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` : shiftName === 'Evening' ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
       return `<div style="padding:12px 18px; border-bottom:1px solid var(--border)">
         <div style="font-family:var(--font-display); font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:10px; letter-spacing:1.5px; text-transform:uppercase">
           ${icon} ${shiftName} Shift
@@ -725,24 +701,24 @@ function renderShifts() {
 
 function openShiftModal(cat) {
   editShiftCat = cat;
-  const sh     = SHIFTS[cat];
+  const sh = SHIFTS[cat];
   document.getElementById('shift-modal-title').textContent = `EDIT TIMINGS`;
-  document.getElementById('shift-modal-cat').textContent   = `Category: ${cat}`;
-  document.getElementById('sh-morn-start').value  = sh.morning[0];
-  document.getElementById('sh-morn-end').value    = sh.morning[1];
-  document.getElementById('sh-eve-start').value   = sh.evening[0];
-  document.getElementById('sh-eve-end').value     = sh.evening[1];
+  document.getElementById('shift-modal-cat').textContent = `Category: ${cat}`;
+  document.getElementById('sh-morn-start').value = sh.morning[0];
+  document.getElementById('sh-morn-end').value = sh.morning[1];
+  document.getElementById('sh-eve-start').value = sh.evening[0];
+  document.getElementById('sh-eve-end').value = sh.evening[1];
   document.getElementById('sh-night-start').value = sh.night[0];
-  document.getElementById('sh-night-end').value   = sh.night[1];
+  document.getElementById('sh-night-end').value = sh.night[1];
   openModal('shift-modal');
 }
 
 async function saveShift() {
   if (!editShiftCat) return;
   const timings = {
-    morning: [document.getElementById('sh-morn-start').value,  document.getElementById('sh-morn-end').value],
-    evening: [document.getElementById('sh-eve-start').value,   document.getElementById('sh-eve-end').value],
-    night:   [document.getElementById('sh-night-start').value, document.getElementById('sh-night-end').value],
+    morning: [document.getElementById('sh-morn-start').value, document.getElementById('sh-morn-end').value],
+    evening: [document.getElementById('sh-eve-start').value, document.getElementById('sh-eve-end').value],
+    night: [document.getElementById('sh-night-start').value, document.getElementById('sh-night-end').value],
   };
 
   try {
@@ -757,27 +733,25 @@ async function saveShift() {
   }
 }
 
-// ═══════════════════════════════════════════
 // REPORTS
-// ═══════════════════════════════════════════
 function renderReports() {
   const total = DB.length || 1;
 
   renderBarChart('chart-cat', [
-    { label: 'POF Employee',  val: DB.filter(m => m.category === 'POF Employee').length,        color: 'var(--brand)' },
-    { label: 'Son of POF',    val: DB.filter(m => m.category === 'Son of POF Employee').length, color: 'var(--gold)' },
-    { label: 'Civilian',      val: DB.filter(m => m.category === 'Civilian').length,             color: '#fb923c' },
+    { label: 'POF Employee', val: DB.filter(m => m.category === 'POF Employee').length, color: 'var(--brand)' },
+    { label: 'Son of POF', val: DB.filter(m => m.category === 'Son of POF Employee').length, color: 'var(--gold)' },
+    { label: 'Civilian', val: DB.filter(m => m.category === 'Civilian').length, color: '#fb923c' },
   ], total);
 
   renderBarChart('chart-fee', [
-    { label: 'Paid',    val: DB.filter(m => m.status === 'Paid').length,    color: 'var(--success)' },
+    { label: 'Paid', val: DB.filter(m => m.status === 'Paid').length, color: 'var(--success)' },
     { label: 'Pending', val: DB.filter(m => m.status === 'Pending').length, color: 'var(--danger)' },
   ], total);
 
   renderBarChart('chart-shift', [
     { label: 'Morning', val: DB.filter(m => m.shift === 'Morning').length, color: '#38bdf8' },
     { label: 'Evening', val: DB.filter(m => m.shift === 'Evening').length, color: '#fb923c' },
-    { label: 'Night',   val: DB.filter(m => m.shift === 'Night').length,   color: '#a78bfa' },
+    { label: 'Night', val: DB.filter(m => m.shift === 'Night').length, color: '#a78bfa' },
   ], total);
 
   const pendingMembers = DB.filter(m => m.status === 'Pending');
@@ -791,7 +765,7 @@ function renderReports() {
               <div class="recent-name">${m.name}</div>
               <div class="recent-meta">${m.category}</div>
             </div>
-            <span style="font-family:var(--font-mono); font-size:12px; color:var(--danger); font-weight:700">PKR ${(m.fee||0).toLocaleString()}</span>
+            <span style="font-family:var(--font-mono); font-size:12px; color:var(--danger); font-weight:700">PKR ${(m.fee || 0).toLocaleString()}</span>
           </div>`).join('')
       : `<div class="empty-state" style="padding:32px;"><div class="empty-state-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><p>All fees are cleared!</p></div>`;
   }
@@ -817,9 +791,7 @@ function animateReportBars() {
   });
 }
 
-// ═══════════════════════════════════════════
 // FEE ALERT TOOL
-// ═══════════════════════════════════════════
 function markPendingFees() {
   const pending = DB.filter(m => m.status === 'Pending');
   if (!pending.length) {
@@ -837,9 +809,7 @@ function markPendingFees() {
   }, 200);
 }
 
-// ═══════════════════════════════════════════
 // MODAL UTILITIES
-// ═══════════════════════════════════════════
 function openModal(id) {
   const el = document.getElementById(id);
   if (el) el.classList.add('open');
@@ -853,20 +823,18 @@ document.addEventListener('click', e => {
   if (e.target.classList.contains('modal-bg')) e.target.classList.remove('open');
 });
 
-// ═══════════════════════════════════════════
 // TOAST NOTIFICATIONS
-// ═══════════════════════════════════════════
 function showToast(title, msg, type = 'info') {
-  const t    = document.getElementById('toast');
+  const t = document.getElementById('toast');
   const icon = document.getElementById('toast-icon');
-  const ttl  = document.getElementById('toast-title');
+  const ttl = document.getElementById('toast-title');
   const tmsg = document.getElementById('toast-msg');
 
   if (!t) return;
 
   const icons = { success: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>', danger: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>️', info: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>️', warning: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' };
   icon.innerHTML = icons[type] || icons.info;
-  ttl.textContent  = title;
+  ttl.textContent = title;
   tmsg.textContent = msg;
 
   t.className = `toast toast-${type}`;
@@ -876,77 +844,75 @@ function showToast(title, msg, type = 'info') {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// ═══════════════════════════════════════════
 // HELPERS
-// ═══════════════════════════════════════════
 function initials(name) {
   return (name || '').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
 function avClass(cat) {
-  if (cat === 'POF Employee')       return 'av-pof';
+  if (cat === 'POF Employee') return 'av-pof';
   if (cat === 'Son of POF Employee') return 'av-son';
   return 'av-civ';
 }
 function catClass(cat) {
-  if (cat === 'POF Employee')       return 'cat-pof';
+  if (cat === 'POF Employee') return 'cat-pof';
   if (cat === 'Son of POF Employee') return 'cat-son';
   return 'cat-civ';
 }
 function fmt12(t) {
   if (!t) return '';
   const [h, m] = t.split(':').map(Number);
-  const ampm   = h >= 12 ? 'PM' : 'AM';
-  const h12    = h % 12 || 12;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
   return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
 }
 function formatDate(dateStr) {
   if (!dateStr) return '—';
   try {
     const d = new Date(dateStr);
-    return d.toLocaleDateString('en-PK', { year:'numeric', month:'long', day:'numeric' });
-  } catch(e) { return dateStr; }
+    return d.toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' });
+  } catch (e) { return dateStr; }
 }
 function clearForm() {
-  ['f-name','f-phone','f-address','f-fee','f-cnic','f-joindate'].forEach(id => {
+  ['f-name', 'f-phone', 'f-address', 'f-fee', 'f-cnic', 'f-joindate'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
   const cat = document.getElementById('f-category');
-  const sh  = document.getElementById('f-shift');
-  const st  = document.getElementById('f-status');
+  const sh = document.getElementById('f-shift');
+  const st = document.getElementById('f-status');
   if (cat) cat.value = 'POF Employee';
-  if (sh)  sh.value  = 'Morning';
-  if (st)  st.value  = 'Paid';
+  if (sh) sh.value = 'Morning';
+  if (st) st.value = 'Paid';
 }
 function updateSidebar() {
-  const total   = DB.length;
-  const paid    = DB.filter(m => m.status === 'Paid').length;
+  const total = DB.length;
+  const paid = DB.filter(m => m.status === 'Paid').length;
   const pending = DB.filter(m => m.status === 'Pending').length;
 
-  const elTotal   = document.getElementById('sb-total');
-  const elPaid    = document.getElementById('sb-paid');
+  const elTotal = document.getElementById('sb-total');
+  const elPaid = document.getElementById('sb-paid');
   const elPending = document.getElementById('sb-pending');
-  if (elTotal)   elTotal.textContent   = total;
-  if (elPaid)    elPaid.textContent    = paid;
+  if (elTotal) elTotal.textContent = total;
+  if (elPaid) elPaid.textContent = paid;
   if (elPending) elPending.textContent = pending;
 
   if (total > 0) {
-    const paidBar    = document.getElementById('sb-paid-bar');
+    const paidBar = document.getElementById('sb-paid-bar');
     const pendingBar = document.getElementById('sb-pending-bar');
-    if (paidBar)    paidBar.style.width    = (paid    / total * 100) + '%';
+    if (paidBar) paidBar.style.width = (paid / total * 100) + '%';
     if (pendingBar) pendingBar.style.width = (pending / total * 100) + '%';
   }
 }
 function updateMenuBadge() {
   const pending = DB.filter(m => m.status === 'Pending').length;
-  const badge   = document.getElementById('pending-badge');
+  const badge = document.getElementById('pending-badge');
   if (badge) {
-    badge.textContent   = pending;
+    badge.textContent = pending;
     badge.style.display = pending > 0 ? 'inline-flex' : 'none';
   }
 }
 function updateTopDate() {
-  const d  = new Date();
+  const d = new Date();
   const el = document.getElementById('topDate');
   if (el) {
     el.textContent = d.toLocaleDateString('en-US', {
@@ -955,9 +921,7 @@ function updateTopDate() {
   }
 }
 
-// ═══════════════════════════════════════════
 // KEYBOARD SHORTCUTS
-// ═══════════════════════════════════════════
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal-bg.open').forEach(m => m.classList.remove('open'));
@@ -997,9 +961,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ═══════════════════════════════════════════
 // DRAWER (MOBILE SIDEBAR)
-// ═══════════════════════════════════════════
 function toggleDrawer() {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
@@ -1037,9 +999,7 @@ document.addEventListener('touchend', e => {
   }
 }, { passive: true });
 
-// ═══════════════════════════════════════════
 // INIT (API-Connected)
-// ═══════════════════════════════════════════
 async function initApp() {
   // Show loading overlay
   const loader = document.getElementById('app-loader');
@@ -1059,7 +1019,7 @@ async function initApp() {
     const avEl = document.querySelector('.admin-avatar');
     if (nameEl) nameEl.textContent = 'LOGOUT';
     if (avEl) avEl.textContent = initials(user.fullName || user.username || 'User');
-    
+
     // Create / Update Role Badge near name
     let badge = document.getElementById('topbar-role-badge');
     const adminBadgeContainer = document.querySelector('.admin-badge');
@@ -1076,7 +1036,7 @@ async function initApp() {
     // Apply UI restrictions if not manager
     const isManager = API.isManager();
     document.body.classList.toggle('role-staff', !isManager);
-    
+
     // Hide/Restrict "Add Member" buttons for staff
     document.querySelectorAll('.btn-primary, [onclick="openAddModal()"]').forEach(el => {
       if (!el.closest('.modal')) { // Ignore inside modals
