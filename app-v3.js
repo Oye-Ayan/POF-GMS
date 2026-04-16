@@ -13,7 +13,7 @@ const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const NOW = new Date();
 const CUR_YEAR = NOW.getFullYear();
-const currentMonth = now.getMonth() + 1;
+const currentMonth = NOW.getMonth() + 1;
 // STATE
 let DB = [];
 let SHIFTS = {};

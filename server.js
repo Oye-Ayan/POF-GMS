@@ -14,6 +14,7 @@ const memberRoutes = require('./server/routes/members');
 const shiftRoutes = require('./server/routes/shifts');
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Vercel) so rate limit traces IPs instead of crashing
 const PORT = process.env.PORT || 5000;
 
 // SECURITY MIDDLEWARE
