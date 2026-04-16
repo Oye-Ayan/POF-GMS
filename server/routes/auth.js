@@ -97,7 +97,7 @@ router.post('/register', async (req, res) => {
         message: error.errors.map(e => e.message).join(', '),
       });
     }
-    res.status(500).json({ success: false, message: 'Internal server error.' });
+    res.status(500).json({ success: false, message: `DB/Server Error: ${error.message}` });
   }
 });
 
