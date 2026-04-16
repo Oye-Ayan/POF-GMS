@@ -10,6 +10,12 @@ const sequelize = new Sequelize(
     port: parseInt(process.env.DB_PORT) || 3306,
     dialect: 'mysql',
     dialectModule: require('mysql2'), // Forces Vercel builder to package raw binaries properly
+    dialectOptions: process.env.NODE_ENV === 'production' ? {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    } : {},
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
       max: Number(process.env.DB_POOL_MAX) || 3, // Throttled maximum simultaneous connections for serverless
