@@ -185,18 +185,16 @@ router.patch('/:id/fee', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Year, month, and status are required.' });
     }
 
-    // Update fee history
-    let fh = member.fee_history || [];
+    // Update fee history properly as a nested object: { "2026": { "3": "Pending" } }
+    let fh = member.fee_history;
+    if (Array.isArray(fh) || typeof fh !== 'object' || fh === null) {
+      fh = {}; // Reset if corrupted to array or null
+    }
 
-    // Remove existing entry for same year/month
-    fh = fh.filter(f => !(f.year == year && f.month == month));
-
-    // Add new entry
-    fh.push({
-      year: parseInt(year),
-      month: parseInt(month),
-      status
-    });
+    if (!fh[year]) {
+      fh[year] = {};
+    }
+    fh[year][month] = status;
 
     member.fee_history = fh;
 

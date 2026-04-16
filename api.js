@@ -1,10 +1,3 @@
-/* ════════════════════════════════════════════════════════════════════
-   POF GMS — Frontend API Helper
-   *** PREVIOUS VERSION without register is preserved in api.js.bak ***
-   Manages all fetch requests to the backend with JWT injection.
-   Author: Muhammad Ayan Khan | Software Engineer
-   ════════════════════════════════════════════════════════════════════ */
-
 'use strict';
 
 const API = {

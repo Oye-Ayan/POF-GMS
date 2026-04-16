@@ -21,9 +21,7 @@ const shiftRoutes = require('./server/routes/shifts');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ═══════════════════════════════════════════
 // SECURITY MIDDLEWARE
-// ═══════════════════════════════════════════
 
 // Helmet — sets various HTTP headers for security
 app.use(helmet({
@@ -56,24 +54,18 @@ const generalLimiter = rateLimit({
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ═══════════════════════════════════════════
 // STATIC FILES — Serve frontend
-// ═══════════════════════════════════════════
 app.use(express.static(path.join(__dirname, '.'), {
   index: false, // We'll handle the root route manually
   extensions: ['html', 'css', 'js'],
 }));
 
-// ═══════════════════════════════════════════
 // API ROUTES
-// ═══════════════════════════════════════════
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/members', generalLimiter, authMiddleware, memberRoutes);
 app.use('/api/shifts', generalLimiter, authMiddleware, shiftRoutes);
 
-// ═══════════════════════════════════════════
 // SERVE FRONTEND
-// ═══════════════════════════════════════════
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -87,9 +79,7 @@ app.get('{*path}', (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════
 // ERROR HANDLER
-// ═══════════════════════════════════════════
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({
@@ -98,23 +88,31 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ═══════════════════════════════════════════
-// START SERVER
-// ═══════════════════════════════════════════
-async function startServer() {
+// START SERVER (Local) / EXPORT (Vercel)
+async function initDB() {
   try {
-    // Test database connection
+    // Test database connection and sync structure
     await sequelize.authenticate();
     await sequelize.sync({ alter: false });
-    console.log(' ');
-    app.listen(PORT, () => {
-      console.log(`Server: http://localhost:${PORT}`);
-    });
   } catch (error) {
-    console.error('\nFailed to start server:', error.message);
-    console.error('Ensure MySQL is running and .env credentials are correct.\n');
-    process.exit(1);
+    console.error('\nFailed to start server/database connection:', error.message);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Ensure MySQL is running and .env credentials are correct.\n');
+      process.exit(1);
+    }
   }
 }
 
-startServer();
+// Initialize database dynamically
+// In serverless, top-level awaits stall execution. This will run synchronously but let the function compile.
+initDB();
+
+// Only listen locally. Vercel triggers execution via exporting the app.
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`\nServer: http://localhost:${PORT}`);
+  });
+}
+
+// Export for serverless consumption
+module.exports = app;
