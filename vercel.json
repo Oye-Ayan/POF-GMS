@@ -1,10 +1,12 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
+    { "src": "server.js", "use": "@vercel/node" },
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "styles-v3.css", "use": "@vercel/static" },
+    { "src": "app-v3.js", "use": "@vercel/static" },
+    { "src": "api.js", "use": "@vercel/static" },
+    { "src": "premium-ux.js", "use": "@vercel/static" }
   ],
   "rewrites": [
     {

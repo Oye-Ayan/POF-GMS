@@ -1,8 +1,3 @@
-/* ════════════════════════════════════════════════════════════════════
-   POF GMS — Express Server Entry Point
-   Author: Muhammad Ayan Khan | Software Engineer
-   ════════════════════════════════════════════════════════════════════ */
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
